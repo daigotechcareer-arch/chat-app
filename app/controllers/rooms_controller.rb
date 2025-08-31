@@ -1,4 +1,7 @@
 class RoomsController < ApplicationController
+  def index
+  end
+  
   def new
     @room = Room.new
   end
@@ -12,7 +15,7 @@ class RoomsController < ApplicationController
     end
   end
 
-  
+
   private
 
   def room_params

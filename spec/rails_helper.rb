@@ -23,7 +23,7 @@ require 'rspec/rails'
 # directory. Alternatively, in the individual `*_spec.rb` files, manually
 # require only the support files necessary.
 #
-# Rails.root.glob('spec/support/**/*.rb').sort_by(&:to_s).each { |f| require f }
+Rails.root.glob('spec/support/**/*.rb').sort_by(&:to_s).each { |f| require f }
 
 # Checks for pending migrations and applies them before tests are run.
 # If you are not using ActiveRecord, you can remove these lines.
@@ -70,4 +70,33 @@ RSpec.configure do |config|
   config.filter_rails_from_backtrace!
   # arbitrary gems may also be filtered via:
   # config.filter_gems_from_backtrace("gem name")
+  # 追記  
+  config.include SignInSupport
 end
+
+# ------------------------------
+# Capybara + Selenium 設定
+# ------------------------------
+require 'capybara/rspec'
+
+Capybara.register_driver :selenium_chrome do |app|
+  options = Selenium::WebDriver::Chrome::Options.new
+  # options.add_argument('--headless') # GUI不要なら有効
+  options.add_argument('--no-sandbox')
+  options.add_argument('--disable-dev-shm-usage')
+
+  # 手動で chromedriver のパスを指定
+  Selenium::WebDriver::Chrome::Service.driver_path = "/usr/bin/chromedriver"
+
+  Capybara::Selenium::Driver.new(app, browser: :chrome, options: options)
+end
+
+Capybara.javascript_driver = :selenium_chrome
+
+RSpec.configure do |config|
+  # system spec の driver を強制的に指定する
+  config.before(:each, type: :system) do
+    driven_by :selenium_chrome
+  end
+end
+
